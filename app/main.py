@@ -39,7 +39,7 @@ def move():
     bad_tiles = []
 
     for snake in payload['snakes']:
-        if snake['url'] == 'localsnake://curtisss':
+        if snake['url'] == 'http://snacman123.herokuapp.com':
             bad_tiles += snake['coords'][1:]
             head = snake['coords'][0]
             health = snake['health']
