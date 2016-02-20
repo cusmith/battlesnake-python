@@ -9,13 +9,13 @@ def static(path):
 
 @bottle.get('/')
 def index():
-    head_url = '%s://%s/static/head.png' % (
+    head_url = '%s://%s/static/0009.gif' % (
         bottle.request.urlparts.scheme,
         bottle.request.urlparts.netloc
     )
 
     return {
-        'color': '#00ff00',
+        'color': '#000000',
         'head': head_url
     }
 
@@ -27,19 +27,78 @@ def start():
     # TODO: Do things with data
 
     return {
-        'taunt': 'battlesnake-python!'
+        'taunt': 'WAKAWAKAWAKAWAKAWAKA'
     }
 
 
 @bottle.post('/move')
 def move():
-    data = bottle.request.json
+    payload = bottle.request.json
 
-    # TODO: Do things with data
+    taunt = ''
+    bad_tiles = []
+
+    for snake in payload['snakes']:
+        if snake['url'] == 'localsnake://curtisss':
+            bad_tiles += snake['coords'][1:]
+            head = snake['coords'][0]
+            health = snake['health']
+        else:
+            bad_tiles += snake['coords']
+            bad_tiles.append([snake['coords'][0][0]+1, snake['coords'][0][1]])
+            bad_tiles.append([snake['coords'][0][0]-1, snake['coords'][0][1]])
+            bad_tiles.append([snake['coords'][0][0], snake['coords'][0][1]+1])
+            bad_tiles.append([snake['coords'][0][0], snake['coords'][0][1]-1])
+
+    for wall in payload.get('walls', []):
+        bad_tiles.append(wall)
+
+    smallest = 999
+    target = [0, 0]
+    for food in payload['food']:
+        x_dis = abs(food[0] - head[0])
+        y_dis = abs(food[1] - head[1])
+        distance = x_dis + y_dis
+        if distance < smallest:
+            smallest = distance
+            target = food
+
+    if len(payload.get('gold', [])) > 0 and health > 35:
+        target = payload['gold'][0]
+
+    move = None
+    if target[1] < head[1]:
+        if [head[0], head[1]-1] not in bad_tiles:
+            move = 'north'
+    if target[1] > head[1]:
+        if [head[0], head[1]+1] not in bad_tiles:
+            move = 'south'
+    if target[0] < head[0]:
+        if [head[0]-1, head[1]] not in bad_tiles:
+            move = 'west'
+    if target[0] > head[0]:
+        if [head[0]+1, head[1]] not in bad_tiles:
+            move = 'east'
+
+    if not move:
+        if [head[0], head[1]-1] not in bad_tiles and head[1] > 0:
+            move = 'north'
+        if [head[0], head[1]+1] not in bad_tiles and head[1] < payload['height']:
+            move = 'south'
+        if [head[0]-1, head[1]] not in bad_tiles and head[0] > 0:
+            move = 'west'
+        if [head[0]+1, head[1]] not in bad_tiles and head[0] < payload['width']:
+            move = 'east'
+
+    if payload['turn'] % 10 == 0:
+        taunt = 'WAKAWAKAWAKAWAKAWAKA'
+
+    if not move:
+        taunt = "Fuck it we'll do it live!"
 
     return {
-        'move': 'north',
-        'taunt': 'battlesnake-python!'
+        'move': move,
+        'taunt': taunt
     }
 
 
@@ -47,10 +106,8 @@ def move():
 def end():
     data = bottle.request.json
 
-    # TODO: Do things with data
-
     return {
-        'taunt': 'battlesnake-python!'
+        'taunt': 'WEOWEOWEOWeoweoweow'
     }
 
 
