@@ -39,7 +39,7 @@ def move():
     bad_tiles = []
 
     for snake in payload['snakes']:
-        if snake['snake_id'] == '07a8c99f-1077-4a4e-86bf-a6ba390f8546':
+        if snake['id'] == '07a8c99f-1077-4a4e-86bf-a6ba390f8546':
             bad_tiles += snake['coords'][1:]
             head = snake['coords'][0]
             health = snake['health']
